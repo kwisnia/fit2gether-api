@@ -1,0 +1,33 @@
+{
+  "name": "fit2gether-api",
+  "version": "1.0.0",
+  "main": "index.ts",
+  "repository": "https://github.com/kwisnia/fit2gether-api.git",
+  "author": "kwisnia <230037@edu.p.lodz.pl>",
+  "license": "MIT",
+  "scripts": {
+    "dev": "nodemon src/index.ts"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.12",
+    "@types/express": "^4.17.13",
+    "@types/node": "^16.11.7",
+    "@typescript-eslint/eslint-plugin": "^5.3.1",
+    "@typescript-eslint/parser": "^5.3.1",
+    "eslint": "^8.2.0",
+    "eslint-config-prettier": "^8.3.0",
+    "nodemon": "^2.0.15",
+    "prisma": "3.4.2",
+    "ts-node": "^10.4.0",
+    "typescript": "^4.4.4"
+  },
+  "dependencies": {
+    "@prisma/client": "3.4.2",
+    "body-parser": "^1.19.0",
+    "cors": "^2.8.5",
+    "express": "^4.17.1"
+  },
+  "prettier": {
+    "tabWidth": 4
+  }
+}
