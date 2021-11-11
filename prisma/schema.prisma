@@ -14,8 +14,9 @@ model User {
   id         Int      @id @default(autoincrement())
   email      String   @unique
   name       String
+  password String
   partner1   User?    @relation("Buddy", fields: [partner1Id], references: [id])
-  partner1Id Int      @unique
+  partner1Id Int?     @unique
   partner2   User?    @relation("Buddy")
   profile    Profile?
   tasks      Task[]
