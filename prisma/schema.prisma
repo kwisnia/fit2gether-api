@@ -20,6 +20,7 @@ model User {
   partner2   User?    @relation("Buddy")
   profile    Profile?
   tasks      Task[]
+  sessions Session[]
 }
 
 model Profile {
@@ -48,4 +49,10 @@ model Task {
 model Category {
   id   Int    @id @default(autoincrement())
   name String @unique
+}
+
+model Session {
+    user    User @relation(fields: [userId], references: [id])
+    userId Int
+    refreshToken String @unique
 }
