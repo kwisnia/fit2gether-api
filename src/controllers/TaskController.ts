@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { prisma } from "../index";
+import { calculateExperienceForTask } from "../services/TaskService";
 import { updateUserExperience } from "../services/UserService";
 import { TaskType } from "../types/TaskType";
 import { UserInfo } from "../types/UserInfo";
@@ -37,7 +38,6 @@ export const createNewTask = async (
           date,
           categoryId,
           userId: user.id,
-          experience: 420,
         },
     })
     res.status(201).send(createTask)
@@ -75,22 +75,22 @@ export const modifyTask = async (
 }
 
 export const markTaskAsComplete = async (
-    req: Request, res: Response
+    req: Request<any, any, { duration: number }>, res: Response
 ) => {
     const taskId = req.params.id;
     const userId = req.params.userId
-    const taskExperience = req.params.experience;
-    const completedTask = await prisma.task.update({
+    const { duration } = req.body
+    const updatedTask = await prisma.task.update({
         where: {
             id: Number(taskId),
         },
         data: {
-            completionTime: new Date()
+            completionTime: new Date(),
+            duration,
         }
     });
 
+    const taskExperience = await calculateExperienceForTask(updatedTask)
     await updateUserExperience(Number(taskExperience), Number(userId))
-    res.status(200)
-
-    
+    res.status(200)    
 }
