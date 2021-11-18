@@ -9,6 +9,7 @@ import type { UserInfo } from "../types/UserInfo";
 import { UserUpdateForm } from "../types/UserUpdateForm";
 import { PasswordResetForm } from "../types/PasswordResetForm";
 import { generate } from "randomstring";
+import { v4 as uuidv4 } from "uuid";
 
 export const registerUser = async (
     req: Request<any, any, RegisterForm>,
@@ -42,6 +43,7 @@ export const registerUser = async (
                     dexterity: 5,
                     experience: 0,
                     experienceLevel: 1,
+                    inviteCode: uuidv4(),
                 },
             },
         },
@@ -95,6 +97,15 @@ export const login = async (
             },
         },
     });
+    let buddyProfilePicture = null;
+    if (existingUserCheck.partner1Id) {
+        const buddy = await prisma.profile.findFirst({
+            where: {
+                userId: existingUserCheck.partner1Id,
+            },
+        });
+        buddyProfilePicture = buddy?.avatarUrl;
+    }
     const buddyStatus = await getBuddyStatus(
         existingUserCheck.id,
         existingUserCheck.partner1Id
@@ -102,6 +113,7 @@ export const login = async (
     res.status(200).send({
         id: existingUserCheck.id,
         profilePicture: existingUserCheck.profile?.avatarUrl,
+        buddyProfilePicture,
         buddyStatus,
         token: tokenPair,
     });
@@ -205,4 +217,70 @@ export const changePassword = async (
     res.sendStatus(200);
 };
 
- 
+export const connectToBuddy = async (req: Request, res: Response) => {
+    const inviteCode = req.params.code;
+    const user = req.user as UserInfo;
+    const profile = await prisma.profile.findUnique({
+        where: {
+            inviteCode,
+        },
+    });
+    if (!profile) {
+        res.status(404).send({
+            message: "Invite code is not valid",
+        });
+        return;
+    }
+    await prisma.user.update({
+        where: {
+            id: user.id,
+        },
+        data: {
+            partner1Id: profile.userId,
+        },
+    });
+    await prisma.user.update({
+        where: {
+            id: profile.userId,
+        },
+        data: {
+            partner1Id: user.id,
+        },
+    });
+    res.sendStatus(200);
+};
+
+export const getPairInfo = async (req: Request, res: Response) => {
+    const userToken = req.user as UserInfo;
+    const user = await prisma.user.findUnique({
+        where: {
+            id: userToken.id,
+        },
+        include: {
+            profile: true,
+            partner1: {
+                include: {
+                    profile: true,
+                },
+            },
+        },
+    });
+    if (!user) {
+        res.sendStatus(404);
+        return;
+    }
+    const response = {
+        name: user.name,
+        experienceLevel: user.profile?.experienceLevel,
+        experience: user.profile?.experience,
+        strength: user.profile?.strength,
+        dexterity: user.profile?.dexterity,
+        constitution: user.profile?.constitution,
+        buddyStats: {
+            strength: user.partner1?.profile?.strength,
+            dexterity: user.partner1?.profile?.dexterity,
+            constitution: user.partner1?.profile?.constitution,
+        },
+    };
+    res.status(200).send(response);
+};
