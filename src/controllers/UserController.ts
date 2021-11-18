@@ -6,7 +6,7 @@ import type { RegisterForm } from "../types/RegisterForm";
 import * as jwt from "jsonwebtoken";
 import { getTokenPair } from "../utils/Tokeniser";
 import { getBuddyStatus } from "../services/BuddyService";
-import type { UserInfo } from "../types/User";
+import type { UserInfo } from "../types/UserInfo";
 
 export const registerUser = async (
     req: Request<any, any, RegisterForm>,
