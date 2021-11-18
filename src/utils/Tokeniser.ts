@@ -1,5 +1,5 @@
 import { JWTPair } from "../types/AuthTypes";
-import { UserInfo } from "../types/User";
+import { UserInfo } from "../types/UserInfo";
 import * as jwt from "jsonwebtoken";
 import randomString from "randomstring";
 

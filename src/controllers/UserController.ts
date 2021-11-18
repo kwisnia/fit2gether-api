@@ -3,10 +3,10 @@ import type { Request, Response } from "express";
 import { prisma } from "..";
 import type { LoginForm } from "../types/LoginForm";
 import type { RegisterForm } from "../types/RegisterForm";
-import * as jwt from "jsonwebtoken";
 import { getTokenPair } from "../utils/Tokeniser";
 import { getBuddyStatus } from "../services/BuddyService";
-import type { UserInfo } from "../types/User";
+import type { UserInfo } from "../types/UserInfo";
+import { UserUpdateForm } from "../types/UserUpdateForm";
 
 export const registerUser = async (
     req: Request<any, any, RegisterForm>,
@@ -48,6 +48,7 @@ export const registerUser = async (
         token: getTokenPair({
             email: newUser.email,
             id: newUser.id,
+            partner1Id: newUser.partner1Id,
         }),
     });
 };
@@ -78,8 +79,9 @@ export const login = async (
         });
         return;
     }
-    const userInfo = {
+    const userInfo: UserInfo = {
         id: existingUserCheck.id,
+        partner1Id: existingUserCheck.partner1Id,
         email: existingUserCheck.email,
     };
     const tokenPair = getTokenPair(userInfo);
@@ -139,7 +141,17 @@ export const refresh = async (
         },
     });
 };
-const editUserProfile = (
-    req: Request<any, any, RegisterForm>,
+
+const editUserProfile = async (
+    req: Request<any, any, UserUpdateForm>,
     res: Response
-) => {};
+) => {
+    const user = req.user as UserInfo;
+    await prisma.user.update({
+        where: {
+            id: user.id,
+        },
+        data: req.body,
+    });
+    res.status(200);
+};
