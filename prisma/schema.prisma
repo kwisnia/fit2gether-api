@@ -44,14 +44,15 @@ model Task {
   date           DateTime
   assignedUser   User     @relation(fields: [userId], references: [id])
   userId         Int
-  experience     Int
   category       Category @relation(fields: [categoryId], references: [id])
   categoryId     Int
+  duration       Int?
 }
 
 model Category {
   id   Int    @id @default(autoincrement())
   name String @unique
+  categoryMultiplier Decimal
   tasks       Task[]
 }
 
