@@ -37,7 +37,7 @@ export const createNewTask = async (
           date,
           categoryId,
           userId: user.id,
-          experience: 420
+          experience: 420,
         },
     })
     res.status(201).send(createTask)
@@ -71,7 +71,7 @@ export const modifyTask = async (
           categoryId
         },
       })
-    res.status(201).send(updateTask)
+    res.status(200)
 }
 
 export const markTaskAsComplete = async (
@@ -90,7 +90,7 @@ export const markTaskAsComplete = async (
     });
 
     await updateUserExperience(Number(taskExperience), Number(userId))
-    res.status(201).send(completedTask)
+    res.status(200)
 
     
 }
