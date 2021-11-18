@@ -14,7 +14,7 @@ model User {
   id         Int      @id @default(autoincrement())
   email      String   @unique
   name       String
-  password String
+  password   String
   partner1   User?    @relation("Buddy", fields: [partner1Id], references: [id])
   partner1Id Int?     @unique
   partner2   User?    @relation("Buddy")
@@ -44,11 +44,14 @@ model Task {
   assignedUser   User     @relation(fields: [userId], references: [id])
   userId         Int
   experience     Int
+  category       Category @relation(fields: [categoryId], references: [id])
+  categoryId     Int
 }
 
 model Category {
   id   Int    @id @default(autoincrement())
   name String @unique
+  tasks       Task[]
 }
 
 model Session {
