@@ -1,12 +1,12 @@
 import { hash, compare } from "bcrypt";
-import { Request, Response } from "express";
+import type { Request, Response } from "express";
 import { prisma } from "..";
-import { LoginForm } from "../types/LoginForm";
-import { RegisterForm } from "../types/RegisterForm";
+import type { LoginForm } from "../types/LoginForm";
+import type { RegisterForm } from "../types/RegisterForm";
 import * as jwt from "jsonwebtoken";
 import { getTokenPair } from "../utils/Tokeniser";
 import { getBuddyStatus } from "../services/BuddyService";
-export { Request, Response } from "express";
+import type { UserInfo } from "../types/User";
 
 export const registerUser = async (
     req: Request<any, any, RegisterForm>,
@@ -44,11 +44,12 @@ export const registerUser = async (
             },
         },
     });
-    jwt.sign({ newUser }, process.env.JTW_PASSWORD!, {
-        algorithm: "HS256",
-        expiresIn: 1000,
+    res.status(201).send({
+        token: getTokenPair({
+            email: newUser.email,
+            id: newUser.id,
+        }),
     });
-    res.status(201).send(newUser);
 };
 
 export const login = async (
@@ -102,6 +103,42 @@ export const login = async (
     });
 };
 
+export const logout = async (req: Request, res: Response) => {
+    const user = req.user as UserInfo;
+    await prisma.session.deleteMany({
+        where: {
+            userId: user.id,
+        },
+    });
+    res.send(200);
+};
+
+export const refresh = async (
+    req: Request<any, any, { refresh: string }>,
+    res: Response
+) => {
+    const user = req.user as UserInfo;
+    const session = await prisma.session.findFirst({
+        where: {
+            refreshToken: req.body.refresh,
+            userId: user.id,
+        },
+    });
+    if (!session) {
+        res.status(400).send({
+            message: "The token is invalid or session has expired",
+        });
+        return;
+    }
+    await prisma.session.update({
+        where: {
+            refreshToken: session.refreshToken,
+        },
+        data: {
+            refreshToken: Randomstring.generate(128),
+        },
+    });
+};
 const editUserProfile = (
     req: Request<any, any, RegisterForm>,
     res: Response

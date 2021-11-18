@@ -9,6 +9,6 @@ export const getTokenPair = (payload: UserInfo): JWTPair => {
             algorithm: "HS256",
             expiresIn: 1000,
         }),
-        refreshToken: randomString.generate(64),
+        refreshToken: randomString.generate(128),
     };
 };
