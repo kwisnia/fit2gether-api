@@ -7,6 +7,8 @@ import { getTokenPair } from "../utils/Tokeniser";
 import { getBuddyStatus } from "../services/BuddyService";
 import type { UserInfo } from "../types/UserInfo";
 import { UserUpdateForm } from "../types/UserUpdateForm";
+import { PasswordResetForm } from "../types/PasswordResetForm";
+import { generate } from "randomstring";
 
 export const registerUser = async (
     req: Request<any, any, RegisterForm>,
@@ -107,12 +109,13 @@ export const login = async (
 
 export const logout = async (req: Request, res: Response) => {
     const user = req.user as UserInfo;
+    console.log("lol");
     await prisma.session.deleteMany({
         where: {
             userId: user.id,
         },
     });
-    res.send(200);
+    res.sendStatus(200);
 };
 
 export const refresh = async (
@@ -132,17 +135,23 @@ export const refresh = async (
         });
         return;
     }
+    const newTokenPair = getTokenPair({
+        id: user.id,
+        email: user.email,
+        partner1Id: user.partner1Id,
+    });
     await prisma.session.update({
         where: {
             refreshToken: session.refreshToken,
         },
         data: {
-            refreshToken: Randomstring.generate(128),
+            refreshToken: generate(128),
         },
     });
+    res.status(200).send(newTokenPair);
 };
 
-const editUserProfile = async (
+export const editUserProfile = async (
     req: Request<any, any, UserUpdateForm>,
     res: Response
 ) => {
@@ -153,5 +162,45 @@ const editUserProfile = async (
         },
         data: req.body,
     });
-    res.status(200);
+    res.sendStatus(200);
+};
+
+export const changePassword = async (
+    req: Request<any, any, PasswordResetForm>,
+    res: Response
+) => {
+    const user = req.user as UserInfo;
+    const { newPassword, newPassword2, oldPassword } = req.body;
+    if (newPassword !== newPassword2) {
+        res.status(400).send("Passwords must be the same");
+        return;
+    }
+    const userToModify = await prisma.user.findUnique({
+        where: {
+            id: user.id,
+        },
+    });
+    if (!userToModify) {
+        res.status(400).send({
+            message: "This user does not exists",
+        });
+        return;
+    }
+    const passwordCheck = await compare(oldPassword, userToModify.password);
+    if (!passwordCheck) {
+        res.status(400).send({
+            message: "Old password is incorrect",
+        });
+        return;
+    }
+    const newPasswordHash = await hash(newPassword, 10);
+    await prisma.user.update({
+        where: {
+            id: user.id,
+        },
+        data: {
+            password: newPasswordHash,
+        },
+    });
+    res.sendStatus(200);
 };
