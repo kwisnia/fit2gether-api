@@ -9,7 +9,12 @@ export const prisma = new PrismaClient();
 const main = () => {
     const app = express();
     app.use(cors());
-    app.use(jwt({ secret: 'tu-bedzie-sekret', algorithms: ['HS256'] }).unless({ path: ['/login', '/register'] }))
+    app.use(
+        jwt({
+            secret: process.env.JTW_PASSWORD!,
+            algorithms: ["HS256"],
+        }).unless({ path: ["/login", "/register"] })
+    );
     app.use(json());
     app.use("/", router);
     app.listen(8080, () => {

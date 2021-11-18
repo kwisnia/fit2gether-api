@@ -3,9 +3,9 @@ import { Request, Response } from "express";
 import { prisma } from "..";
 import { LoginForm } from "../types/LoginForm";
 import { RegisterForm } from "../types/RegisterForm";
-import * as jwt from 'jsonwebtoken'
-import {getTokenPair} from "../utils/Tokeniser";
-import {getBuddyStatus} from "../services/BuddyService";
+import * as jwt from "jsonwebtoken";
+import { getTokenPair } from "../utils/Tokeniser";
+import { getBuddyStatus } from "../services/BuddyService";
 export { Request, Response } from "express";
 
 export const registerUser = async (
@@ -44,7 +44,10 @@ export const registerUser = async (
             },
         },
     });
-    jwt.sign({newUser}, 'tu-bedzie-sekret', { algorithm: 'HS256', expiresIn: 1000 });
+    jwt.sign({ newUser }, process.env.JTW_PASSWORD!, {
+        algorithm: "HS256",
+        expiresIn: 1000,
+    });
     res.status(201).send(newUser);
 };
 
@@ -56,9 +59,10 @@ export const login = async (
     const existingUserCheck = await prisma.user.findFirst({
         where: {
             email,
-        }, include: {
-            profile: true
-        }
+        },
+        include: {
+            profile: true,
+        },
     });
     if (!existingUserCheck) {
         res.status(404).send({
@@ -76,25 +80,29 @@ export const login = async (
     const userInfo = {
         id: existingUserCheck.id,
         email: existingUserCheck.email,
-    }
+    };
     const tokenPair = getTokenPair(userInfo);
-    /*await prisma.session.create({
+    await prisma.session.create({
         data: {
             refreshToken: tokenPair.refreshToken,
             user: {
-                connect: { id: existingUserCheck.id }
-            }
-        }
-
-    });*/
-    const buddyStatus = await getBuddyStatus(existingUserCheck.id, existingUserCheck.partner1Id);
+                connect: { id: existingUserCheck.id },
+            },
+        },
+    });
+    const buddyStatus = await getBuddyStatus(
+        existingUserCheck.id,
+        existingUserCheck.partner1Id
+    );
     res.status(200).send({
         id: existingUserCheck.id,
         profilePicture: existingUserCheck.profile?.avatarUrl,
-        token: tokenPair
+        buddyStatus,
+        token: tokenPair,
     });
 };
 
-const editUserProfile = (req: Request<any, any, RegisterForm>,
-                         res: Response) => {
-}
+const editUserProfile = (
+    req: Request<any, any, RegisterForm>,
+    res: Response
+) => {};
