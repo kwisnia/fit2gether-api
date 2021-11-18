@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { prisma } from "../index";
+import { updateUserExperience } from "../services/UserService";
 import { TaskType } from "../types/TaskType";
 import { UserInfo } from "../types/UserInfo";
 
@@ -30,7 +31,7 @@ export const createNewTask = async (
 ) => {
     const { name, date, categoryId } = req.body
     const user = req.user as UserInfo; 
-    const task = await prisma.task.create({
+    const createTask = await prisma.task.create({
         data: {
           name,
           date,
@@ -39,4 +40,57 @@ export const createNewTask = async (
           experience: 420
         },
     })
+    res.status(201).send(createTask)
+}
+
+export const deleteTask = async (
+    req: Request, res: Response
+) => {
+    const taskId = req.params.id;
+    await prisma.task.deleteMany({
+        where: {
+            id: Number(taskId)
+        }
+    })
+    res.send(200);
+}
+
+// in the future validation could be added maybe please
+export const modifyTask = async (
+    req: Request, res: Response
+) => {
+    const taskId = req.params.id;
+    const { name, date, categoryId } = req.body
+    const updateTask = await prisma.task.update({
+        where: {
+          id: Number(taskId),
+        },
+        data: {
+          name,
+          date,
+          categoryId
+        },
+      })
+    res.status(201).send(updateTask)
+}
+
+export const markTaskAsComplete = async (
+    req: Request, res: Response
+) => {
+    const taskId = req.params.id;
+    const userId = req.params.userId
+    const taskExperience = req.params.experience;
+    const completedTask = await prisma.task.update({
+        where: {
+            id: Number(taskId),
+        },
+        data: {
+            completionTime: new Date()
+        }
+    });
+
+    await updateUserExperience(Number(taskExperience), Number(userId))
+    res.status(201).send(completedTask)
+
+    
 }
