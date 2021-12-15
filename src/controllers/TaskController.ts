@@ -69,7 +69,12 @@ export const getAllUserTasks = async (
                 },
             },
         });
-        res.status(200).send(allUserTasks);
+        res.status(200).send(
+            allUserTasks.map((task) => ({
+                ...task,
+                date: task.date.toISOString().split("T")[0],
+            }))
+        );
     } catch (err) {
         res.status(500).send(err);
     }
