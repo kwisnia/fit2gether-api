@@ -1,5 +1,5 @@
 export interface TaskType {
-    name: string,
-    date: Date,
-    categoryId: number
+    name: string;
+    date: string;
+    categoryId: number;
 }

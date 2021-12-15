@@ -3,7 +3,12 @@ import { prisma } from "../index";
 
 export const getAllCategories = async (_: Request, res: Response) => {
     try {
-        const allCategories = await prisma.category.findMany();
+        const allCategories = await prisma.category.findMany({
+            select: {
+                id: true,
+                name: true,
+            },
+        });
         res.status(200).send(allCategories);
     } catch (err) {
         res.status(500).send(err);

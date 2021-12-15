@@ -16,10 +16,10 @@ export const getAllUserTasks = async (
     let query: Object = {
         OR: [
             {
-                id: user.id,
+                userId: user.id,
             },
             {
-                id: user.partner1Id!,
+                userId: user.partner1Id!,
             },
         ],
     };
@@ -56,6 +56,18 @@ export const getAllUserTasks = async (
     try {
         const allUserTasks = await prisma.task.findMany({
             where: query,
+            select: {
+                id: true,
+                name: true,
+                userId: true,
+                date: true,
+                category: {
+                    select: {
+                        id: true,
+                        name: true,
+                    },
+                },
+            },
         });
         res.status(200).send(allUserTasks);
     } catch (err) {
@@ -72,7 +84,7 @@ export const createNewTask = async (
     const createTask = await prisma.task.create({
         data: {
             name,
-            date,
+            date: new Date(date),
             categoryId,
             userId: user.id,
         },
@@ -114,6 +126,17 @@ export const markTaskAsComplete = async (
     const taskId = req.params.id;
     const userId = (req.user as UserInfo).id;
     const { duration } = req.body;
+    const checkIfCompleted = await prisma.task.findFirst({
+        where: {
+            id: Number(taskId),
+        },
+    });
+    if (checkIfCompleted) {
+        res.status(400).send({
+            message: "This task has already been completed",
+        });
+        return;
+    }
     const updatedTask = await prisma.task.update({
         where: {
             id: Number(taskId),

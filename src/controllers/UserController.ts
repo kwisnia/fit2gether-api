@@ -116,6 +116,7 @@ export const login = async (
         buddyProfilePicture,
         buddyStatus,
         token: tokenPair,
+        inviteCode: existingUserCheck.profile?.inviteCode,
     });
 };
 

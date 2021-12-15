@@ -60,6 +60,10 @@ export const calculateExperienceForTask = async (
     const todayTask = await prisma.task.findFirst({
         where: {
             userId: user?.partner1Id!,
+            completionTime: {
+                not: null,
+            },
+            date: newTask.completionTime as Date,
         },
     });
 
@@ -72,7 +76,7 @@ export const calculateExperienceForTask = async (
         BASE_EXPERIENCE + newTask.duration! + varietyBonus + dailyBonus;
 
     return Promise.resolve({
-        experience: experienceForTask,
+        experience: Math.floor(experienceForTask),
         dailyBonus: dailyBonusAdded,
         varietyBonus: varietyBonus !== 0,
     });
