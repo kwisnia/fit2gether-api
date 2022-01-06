@@ -86,15 +86,37 @@ export const createNewTask = async (
 ) => {
     const { name, date, categoryId } = req.body;
     const user = req.user as UserInfo;
-    const createTask = await prisma.task.create({
-        data: {
-            name,
-            date: new Date(date),
-            categoryId,
-            userId: user.id,
+    const categoryValidation = await prisma.category.findFirst({
+        where: {
+            id: categoryId,
         },
     });
-    res.status(201).send(createTask);
+    const userValidation = await prisma.user.findFirst({
+        where: {
+            id: user.id,
+        },
+    });
+    if (!new Date(date)) {
+        res.status(400).send({
+            message: "Invalid date provided",
+        });
+        return;
+    }
+    if (categoryValidation && userValidation) {
+        const createTask = await prisma.task.create({
+            data: {
+                name,
+                date: new Date(date),
+                categoryId,
+                userId: user.id,
+            },
+        });
+        res.status(201).send(createTask);
+    } else {
+        res.status(400).send({
+            message: "Invalid user or category provided",
+        });
+    }
 };
 
 export const deleteTask = async (req: Request, res: Response) => {
@@ -107,10 +129,26 @@ export const deleteTask = async (req: Request, res: Response) => {
     res.send(200);
 };
 
-// in the future validation could be added maybe please
 export const modifyTask = async (req: Request, res: Response) => {
     const taskId = req.params.id;
     const { name, date, categoryId } = req.body;
+    const categoryValidation = await prisma.category.findFirst({
+        where: {
+            id: categoryId,
+        },
+    });
+    if (!categoryValidation) {
+        res.status(400).send({
+            message: "Invalid category provided",
+        });
+        return;
+    }
+    if (!new Date(date)) {
+        res.status(400).send({
+            message: "Invalid date provided",
+        });
+        return;
+    }
     const updatedTask = await prisma.task.update({
         where: {
             id: Number(taskId),
@@ -131,12 +169,18 @@ export const markTaskAsComplete = async (
     const taskId = req.params.id;
     const userId = (req.user as UserInfo).id;
     const { duration } = req.body;
-    const checkIfCompleted = await prisma.task.findFirst({
+    const existCheck = await prisma.task.findFirst({
         where: {
             id: Number(taskId),
         },
     });
-    if (checkIfCompleted) {
+    if (!existCheck) {
+        res.status(404).send({
+            message: "This task has not been found",
+        });
+        return;
+    }
+    if (existCheck.completionTime) {
         res.status(400).send({
             message: "This task has already been completed",
         });

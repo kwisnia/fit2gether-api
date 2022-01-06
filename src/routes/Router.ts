@@ -1,6 +1,12 @@
 import express from "express";
 import { getAllCategories } from "../controllers/CategoryController";
 import {
+    connectToBuddy,
+    editUserProfile,
+    getPairInfo,
+} from "../controllers/ProfileController";
+import { logout, refresh } from "../controllers/SessionController";
+import {
     createNewTask,
     getAllUserTasks,
     markTaskAsComplete,
@@ -8,12 +14,7 @@ import {
 } from "../controllers/TaskController";
 import {
     changePassword,
-    connectToBuddy,
-    editUserProfile,
-    getPairInfo,
     login,
-    logout,
-    refresh,
     registerUser,
 } from "../controllers/UserController";
 
