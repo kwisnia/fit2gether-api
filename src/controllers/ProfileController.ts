@@ -25,7 +25,7 @@ export const connectToBuddy = async (req: Request, res: Response) => {
             inviteCode,
         },
     });
-    if (!profile) {
+    if (!profile || profile.id === user.id) {
         res.status(404).send({
             message: "Invite code is not valid",
         });
