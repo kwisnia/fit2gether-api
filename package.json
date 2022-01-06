@@ -6,7 +6,8 @@
   "author": "kwisnia <230037@edu.p.lodz.pl>",
   "license": "MIT",
   "scripts": {
-    "dev": "nodemon src/index.ts"
+    "dev": "nodemon src/index.ts",
+    "postinstall": "tsc"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.0",
