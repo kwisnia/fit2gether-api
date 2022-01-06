@@ -15,7 +15,7 @@ const main = () => {
     app.use(cors());
     app.use(
         jwt({
-            secret: `${process.env.JTW_PASSWORD!}`,
+            secret: `${process.env.JWT_PASSWORD!}`,
             algorithms: ["HS256"],
         }).unless({ path: ["/login", "/register"] })
     );
