@@ -2,6 +2,7 @@ import type { Request, Response } from "express";
 import { prisma } from "..";
 import { UserUpdateForm } from "../types/UserUpdateForm";
 import { UserInfo } from "../types/UserInfo";
+import { getTokenPair } from "../utils/Tokeniser";
 
 export const editUserProfile = async (
     req: Request<any, any, UserUpdateForm>,
@@ -47,7 +48,14 @@ export const connectToBuddy = async (req: Request, res: Response) => {
             partner1Id: user.id,
         },
     });
-    res.sendStatus(200);
+    const userInfo: UserInfo = {
+        ...user,
+        partner1Id: profile.userId,
+    };
+    const tokenPair = getTokenPair(userInfo);
+    res.status(200).send({
+        accessToken: tokenPair.accessToken,
+    });
 };
 
 export const getPairInfo = async (req: Request, res: Response) => {
