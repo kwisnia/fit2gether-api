@@ -13,13 +13,20 @@ export const getAllUserTasks = async (
     const { from, to, status } = req.query;
     const user = req.user as UserInfo;
 
+    if (!user.partner1Id) {
+        res.status(400).send({
+            message: "You must be connected to a buddy to get the task list",
+        });
+        return;
+    }
+
     let query: Object = {
         OR: [
             {
                 userId: user.id,
             },
             {
-                userId: user.partner1Id!,
+                userId: user.partner1Id,
             },
         ],
     };
