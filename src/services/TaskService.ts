@@ -1,4 +1,5 @@
 import { Task } from ".prisma/client";
+import { Profile, User } from "@prisma/client";
 import { DateTime } from "luxon";
 import { prisma } from "../index";
 import { TaskCompleteDetails } from "../types/TaskCompleteDetails";
@@ -42,20 +43,16 @@ export const calculateVarietyBonus = async (newTask: Task): Promise<number> => {
 };
 
 export const calculateExperienceForTask = async (
-    newTask: Task
+    newTask: Task,
+    user:
+        | (User & {
+              profile: Profile | null;
+          })
+        | null
 ): Promise<TaskCompleteDetails> => {
     const varietyBonus = await calculateVarietyBonus(newTask);
     let dailyBonus = 0;
     let dailyBonusAdded = false;
-
-    const user = await prisma.user.findUnique({
-        where: {
-            id: newTask.userId,
-        },
-        include: {
-            profile: true,
-        },
-    });
 
     const todayTask = await prisma.task.findFirst({
         where: {
@@ -67,13 +64,27 @@ export const calculateExperienceForTask = async (
         },
     });
 
+    const category = await prisma.category.findFirst({
+        where: {
+            id: newTask.categoryId,
+        },
+    });
+
     if (todayTask) {
-        dailyBonus = DAILY_BONUS * 1.5 ** (user?.profile?.experienceLevel || 1);
+        if (user?.profile?.experienceLevel) {
+            dailyBonus =
+                Math.ceil(user?.profile?.experienceLevel / 10) * DAILY_BONUS;
+        } else {
+            dailyBonus = DAILY_BONUS;
+        }
         dailyBonusAdded = true;
     }
 
-    let experienceForTask =
-        BASE_EXPERIENCE + newTask.duration! + varietyBonus + dailyBonus;
+    const experienceForTask =
+        BASE_EXPERIENCE +
+        newTask.duration! * Number(category!.categoryMultiplier) +
+        varietyBonus +
+        dailyBonus;
 
     return Promise.resolve({
         experience: Math.floor(experienceForTask),

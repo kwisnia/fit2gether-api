@@ -172,11 +172,12 @@ export const markTaskAsComplete = async (
     const existCheck = await prisma.task.findFirst({
         where: {
             id: Number(taskId),
+            userId,
         },
     });
     if (!existCheck) {
         res.status(404).send({
-            message: "This task has not been found",
+            message: "This task was not found",
         });
         return;
     }
@@ -196,7 +197,23 @@ export const markTaskAsComplete = async (
         },
     });
 
-    const taskExperience = await calculateExperienceForTask(updatedTask);
-    await updateUserExperience(taskExperience.experience, Number(userId));
+    const user = await prisma.user.findUnique({
+        where: {
+            id: userId,
+        },
+        include: {
+            profile: true,
+        },
+    });
+
+    if (!user) {
+        res.status(400).send({
+            message: "Invalid user",
+        });
+        return;
+    }
+
+    const taskExperience = await calculateExperienceForTask(updatedTask, user);
+    await updateUserExperience(taskExperience.experience, user);
     res.status(200).send(taskExperience);
 };
