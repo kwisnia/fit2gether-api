@@ -23,6 +23,7 @@ const main = () => {
     app.use("/", router);
     app.use((err: Error, req: Request, res: Response, _: NextFunction) => {
         if (err.name === "UnauthorizedError") {
+            console.log(req.headers);
             res.status(401).send({
                 message: "Token is missing or invalid",
             });
