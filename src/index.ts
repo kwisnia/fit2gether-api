@@ -5,6 +5,8 @@ import router from "./routes/Router";
 import jwt from "express-jwt";
 import * as dotenv from "dotenv";
 
+const PORT = process.env.PORT || 8080;
+
 export const prisma = new PrismaClient();
 
 const main = () => {
@@ -26,8 +28,8 @@ const main = () => {
             });
         }
     });
-    app.listen(8080, () => {
-        console.log(`Server is listening on port 8080`);
+    app.listen(PORT, () => {
+        console.log(`Server is listening on port ${PORT}`);
     });
 };
 
