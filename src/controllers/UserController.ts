@@ -50,6 +50,8 @@ export const registerUser = async (
     });
     res.status(201).send({
         id: newUser.id,
+        username: newUser.name,
+        email: newUser.email,
         profilePicture: newUser.profile?.avatarUrl,
         buddyProfilePicture: null,
         buddyId: newUser.partner1Id,
@@ -113,6 +115,8 @@ export const login = async (
     }
     res.status(200).send({
         id: existingUserCheck.id,
+        username: existingUserCheck.name,
+        email: existingUserCheck.email,
         profilePicture: existingUserCheck.profile?.avatarUrl,
         buddyProfilePicture,
         buddyId: existingUserCheck.partner1Id,
