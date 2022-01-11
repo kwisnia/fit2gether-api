@@ -87,6 +87,71 @@ export const getAllUserTasks = async (
     }
 };
 
+export const getDatesWithTasks = async (
+    req: Request<any, any, any, TasksQuery>,
+    res: Response
+) => {
+    const { from, to } = req.query;
+    const user = req.user as UserInfo;
+
+    if (!user.partner1Id) {
+        res.status(400).send({
+            message: "You must be connected to a buddy to get the task list",
+        });
+        return;
+    }
+    let query: Object = {};
+    if (from && to) {
+        try {
+            const fromDate = new Date(from);
+            const toDate = new Date(to);
+            query = {
+                date: {
+                    gte: fromDate,
+                    lte: toDate,
+                },
+            };
+        } catch (e) {}
+    } else {
+        res.status(400).send({
+            message: "Query from and to required",
+        });
+        return;
+    }
+    try {
+        const allUserDates = await prisma.task.findMany({
+            distinct: ["date"],
+            where: {
+                ...query,
+                userId: user.id,
+            },
+            select: {
+                date: true,
+            },
+        });
+        const allBuddyDates = await prisma.task.findMany({
+            distinct: ["date"],
+            where: {
+                ...query,
+                userId: user.partner1Id,
+            },
+            select: {
+                date: true,
+            },
+        });
+        res.status(200).send({
+            user: allUserDates.map(
+                (task) => task.date.toISOString().split("T")[0]
+            ),
+            buddy: allBuddyDates.map(
+                (task) => task.date.toISOString().split("T")[0]
+            ),
+        });
+    } catch (err) {
+        res.status(500).send(err);
+    }
+};
+
 export const createNewTask = async (
     req: Request<any, any, TaskType>,
     res: Response

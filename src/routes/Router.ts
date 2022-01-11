@@ -9,6 +9,7 @@ import { logout, refresh } from "../controllers/SessionController";
 import {
     createNewTask,
     getAllUserTasks,
+    getDatesWithTasks,
     markTaskAsComplete,
     modifyTask,
 } from "../controllers/TaskController";
@@ -30,6 +31,7 @@ router.post("/changePassword", changePassword);
 router.post("/connect/:code", connectToBuddy);
 router.get("/pairInfo", getPairInfo);
 router.get("/tasks", getAllUserTasks);
+router.get("/getDaysWithTasks", getDatesWithTasks);
 router.post("/task", createNewTask);
 router.put("/task/:id", modifyTask);
 router.put("/task/:id/complete", markTaskAsComplete);

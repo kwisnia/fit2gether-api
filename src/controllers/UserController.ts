@@ -4,7 +4,6 @@ import { prisma } from "..";
 import type { LoginForm } from "../types/LoginForm";
 import type { RegisterForm } from "../types/RegisterForm";
 import { getTokenPair } from "../utils/Tokeniser";
-import { getBuddyStatus } from "../services/BuddyService";
 import type { UserInfo } from "../types/UserInfo";
 import { v4 as uuidv4 } from "uuid";
 import { PasswordResetForm } from "../types/PasswordResetForm";
@@ -45,13 +44,21 @@ export const registerUser = async (
                 },
             },
         },
+        include: {
+            profile: true,
+        },
     });
     res.status(201).send({
+        id: newUser.id,
+        profilePicture: newUser.profile?.avatarUrl,
+        buddyProfilePicture: null,
+        buddyId: newUser.partner1Id,
         token: getTokenPair({
             email: newUser.email,
             id: newUser.id,
             partner1Id: newUser.partner1Id,
         }),
+        inviteCode: newUser.profile?.inviteCode,
     });
 };
 
@@ -104,15 +111,11 @@ export const login = async (
         });
         buddyProfilePicture = buddy?.avatarUrl;
     }
-    const buddyStatus = await getBuddyStatus(
-        existingUserCheck.id,
-        existingUserCheck.partner1Id
-    );
     res.status(200).send({
         id: existingUserCheck.id,
         profilePicture: existingUserCheck.profile?.avatarUrl,
         buddyProfilePicture,
-        buddyStatus,
+        buddyId: existingUserCheck.partner1Id,
         token: tokenPair,
         inviteCode: existingUserCheck.profile?.inviteCode,
     });

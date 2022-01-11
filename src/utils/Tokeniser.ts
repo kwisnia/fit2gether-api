@@ -7,7 +7,7 @@ export const getTokenPair = (payload: UserInfo): JWTPair => {
     return {
         accessToken: jwt.sign(payload, `${process.env.JWT_PASSWORD!}`, {
             algorithm: "HS256",
-            expiresIn: 1000,
+            expiresIn: "365d",
         }),
         refreshToken: randomString.generate(128),
     };

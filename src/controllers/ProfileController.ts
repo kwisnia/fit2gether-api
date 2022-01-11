@@ -3,6 +3,7 @@ import { prisma } from "..";
 import { UserUpdateForm } from "../types/UserUpdateForm";
 import { UserInfo } from "../types/UserInfo";
 import { getTokenPair } from "../utils/Tokeniser";
+import { calculateNextLevelCap } from "../services/TaskService";
 
 export const editUserProfile = async (
     req: Request<any, any, UserUpdateForm>,
@@ -77,18 +78,41 @@ export const getPairInfo = async (req: Request, res: Response) => {
         res.sendStatus(404);
         return;
     }
+    const lastCompletedTasks = await prisma.task.findMany({
+        where: {
+            OR: [
+                {
+                    userId: user.id,
+                },
+                {
+                    userId: user.partner1Id!,
+                },
+            ],
+            completionTime: {
+                not: null,
+            },
+        },
+        orderBy: [
+            {
+                completionTime: "desc",
+            },
+        ],
+        select: {
+            name: true,
+            userId: true,
+            completionTime: true,
+        },
+        take: 3,
+    });
     const response = {
         name: user.name,
+        buddyName: user.partner1?.name,
         experienceLevel: user.profile?.experienceLevel,
         experience: user.profile?.experience,
-        strength: user.profile?.strength,
-        dexterity: user.profile?.dexterity,
-        constitution: user.profile?.constitution,
-        buddyStats: {
-            strength: user.partner1?.profile?.strength,
-            dexterity: user.partner1?.profile?.dexterity,
-            constitution: user.partner1?.profile?.constitution,
-        },
+        experienceRequired: calculateNextLevelCap(
+            user.profile!.experienceLevel
+        ),
+        recentActivities: lastCompletedTasks,
     };
     res.status(200).send(response);
 };
