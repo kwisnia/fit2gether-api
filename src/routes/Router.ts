@@ -21,7 +21,7 @@ import {
 
 const router = express.Router();
 
-router.get("/categories", getAllCategories);
+router.get("/getAllCategories", getAllCategories);
 router.post("/register", registerUser);
 router.post("/login", login);
 router.post("/logout", logout);
