@@ -78,6 +78,11 @@ export const getPairInfo = async (req: Request, res: Response) => {
         res.sendStatus(404);
         return;
     }
+    if (!user.partner1Id) {
+        res.status(400).send({
+            message: "You do not have a buddy",
+        });
+    }
     const lastCompletedTasks = await prisma.task.findMany({
         where: {
             OR: [

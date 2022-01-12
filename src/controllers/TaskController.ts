@@ -80,6 +80,10 @@ export const getAllUserTasks = async (
             allUserTasks.map((task) => ({
                 ...task,
                 date: task.date.toISOString().split("T")[0],
+                category: {
+                    value: task.category.id,
+                    label: task.category.name,
+                },
             }))
         );
     } catch (err) {

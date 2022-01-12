@@ -9,7 +9,12 @@ export const getAllCategories = async (_: Request, res: Response) => {
                 name: true,
             },
         });
-        res.status(200).send(allCategories);
+        res.status(200).send(
+            allCategories.map((category) => ({
+                value: category.id,
+                label: category.name,
+            }))
+        );
     } catch (err) {
         res.status(500).send(err);
     }
