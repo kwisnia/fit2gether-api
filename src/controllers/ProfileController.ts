@@ -56,6 +56,8 @@ export const connectToBuddy = async (req: Request, res: Response) => {
     const tokenPair = getTokenPair(userInfo);
     res.status(200).send({
         accessToken: tokenPair.accessToken,
+        buddyId: profile.userId,
+        buddyProfilePicture: profile.avatarUrl,
     });
 };
 
