@@ -50,7 +50,8 @@ export const connectToBuddy = async (req: Request, res: Response) => {
         },
     });
     const userInfo: UserInfo = {
-        ...user,
+        email: user.email,
+        id: user.id,
         partner1Id: profile.userId,
     };
     const tokenPair = getTokenPair(userInfo);
