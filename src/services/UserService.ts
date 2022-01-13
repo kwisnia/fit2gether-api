@@ -17,7 +17,7 @@ export const updateUserExperience = async (
     }
 
     await checkLevel(
-        experience,
+        user.profile?.experience || 0,
         user.id,
         user.partner1Id,
         user.profile?.experienceLevel || 1
@@ -27,17 +27,19 @@ export const updateUserExperience = async (
 };
 
 export const checkLevel = async (
-    experience: number,
+    totalExperience: number,
     userId: number,
     partnerId: number | null,
     experienceLevel: number
 ): Promise<void> => {
     const experienceCap = calculateNextLevelCap(experienceLevel);
 
-    if (experience > experienceCap) {
-        await prisma.$executeRaw`update "Profile" set experienceLevel = experienceLevel + 1
+    if (totalExperience > experienceCap) {
+        await prisma.$executeRaw`update "Profile" set experienceLevel = experienceLevel + 1, experience = ${
+            totalExperience - experienceCap
+        }
                 where id = ${userId} ${
-            partnerId ? "and id = " + "partnerId" : ""
+            partnerId ? "and id = " + partnerId : ""
         }`;
     }
 

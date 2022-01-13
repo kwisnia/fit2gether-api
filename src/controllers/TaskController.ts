@@ -244,7 +244,6 @@ export const markTaskAsComplete = async (
 ) => {
     const taskId = req.params.id;
     const userId = (req.user as UserInfo).id;
-    console.log(userId);
     const { duration } = req.body;
     const existCheck = await prisma.task.findFirst({
         where: {
