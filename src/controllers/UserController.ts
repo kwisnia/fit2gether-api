@@ -77,15 +77,13 @@ export const login = async (
             profile: true,
         },
     });
-    if (!existingUserCheck) {
+
+    const passwordCheck = await compare(
+        password,
+        existingUserCheck?.password || ""
+    );
+    if (!existingUserCheck || !passwordCheck) {
         res.status(404).send({
-            message: "User with this email does not exist",
-        });
-        return;
-    }
-    const passwordCheck = await compare(password, existingUserCheck.password);
-    if (!passwordCheck) {
-        res.status(400).send({
             message: "Credentials are not correct",
         });
         return;
