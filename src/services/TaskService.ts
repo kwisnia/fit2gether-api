@@ -9,7 +9,7 @@ export const LEVEL_ONE_EXPERIENCE = 1260;
 const DAILY_BONUS = 69;
 
 export const calculateNextLevelCap = (experienceLevel: number) => {
-    return LEVEL_ONE_EXPERIENCE * 1.5 ** experienceLevel;
+    return Math.floor(LEVEL_ONE_EXPERIENCE * 1.5 ** (experienceLevel - 1));
 };
 
 export const calculateVarietyBonus = async (newTask: Task): Promise<number> => {

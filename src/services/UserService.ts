@@ -1,6 +1,6 @@
 import { Profile, User } from "@prisma/client";
 import { prisma } from "../index";
-import { LEVEL_ONE_EXPERIENCE } from "./TaskService";
+import { calculateNextLevelCap, LEVEL_ONE_EXPERIENCE } from "./TaskService";
 
 export const updateUserExperience = async (
     experience: number,
@@ -32,13 +32,14 @@ export const checkLevel = async (
     experienceLevel: number
 ): Promise<void> => {
     const currentExp =
-        -2 * LEVEL_ONE_EXPERIENCE * (1 - 1.5 ** experienceLevel) +
-        totalExperience;
+        -2520 * (1 - 1.5 ** (experienceLevel - 1)) + totalExperience;
 
-    const level = Math.floor(Math.log(2521 * currentExp) / Math.log(1.5));
+    const level =
+        Math.floor(Math.log(currentExp / 2520 + 1) / Math.log(1.5)) + 1;
 
-    const remainder =
-        currentExp - LEVEL_ONE_EXPERIENCE * ((1 - 1.5 ** level) / -0.5);
+    const remainder = Math.floor(
+        currentExp - LEVEL_ONE_EXPERIENCE * ((1 - 1.5 ** (level - 1)) / -0.5)
+    );
 
     if (experienceLevel !== level) {
         await prisma.$executeRaw`update "Profile" set "experienceLevel" = ${level}, experience = ${remainder} where id = ${userId}`;
