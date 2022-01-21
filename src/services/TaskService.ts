@@ -5,7 +5,7 @@ import { prisma } from "../index";
 import { TaskCompleteDetails } from "../types/TaskCompleteDetails";
 
 const BASE_EXPERIENCE = 420;
-const LEVEL_ONE_EXPERIENCE = 1260;
+export const LEVEL_ONE_EXPERIENCE = 1260;
 const DAILY_BONUS = 69;
 
 export const calculateNextLevelCap = (experienceLevel: number) => {
