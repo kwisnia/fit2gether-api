@@ -63,7 +63,7 @@ export const calculateExperienceForTask = async (
             completionTime: {
                 not: null,
             },
-            date: newTask.completionTime as Date,
+            date: newTask.date,
         },
     });
 
