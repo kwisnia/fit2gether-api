@@ -32,9 +32,8 @@ export const checkLevel = async (
     experienceLevel: number
 ): Promise<void> => {
     const currentExp =
-        LEVEL_ONE_EXPERIENCE *
-            (1 - MULTIPLIER) *
-            (1 - MULTIPLIER ** (experienceLevel - 1)) +
+        (LEVEL_ONE_EXPERIENCE * (1 - MULTIPLIER ** (experienceLevel - 1))) /
+            (1 - MULTIPLIER) +
         totalExperience;
 
     const level =
@@ -49,6 +48,11 @@ export const checkLevel = async (
             LEVEL_ONE_EXPERIENCE *
                 ((1 - MULTIPLIER ** (level - 1)) / (1 - MULTIPLIER))
     );
+
+    console.log(totalExperience);
+    console.log(currentExp);
+    console.log(level);
+    console.log(remainder);
 
     if (experienceLevel !== level) {
         await prisma.$executeRaw`update "Profile" set "experienceLevel" = ${level}, experience = ${remainder} where id = ${userId}`;
