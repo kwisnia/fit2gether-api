@@ -41,7 +41,7 @@ export const refresh = async (
             refreshToken: session.refreshToken,
         },
         data: {
-            refreshToken: generate(128),
+            refreshToken: newTokenPair.refreshToken,
         },
     });
     res.status(200).send(newTokenPair);
