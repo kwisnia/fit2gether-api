@@ -6,10 +6,13 @@ import { TaskCompleteDetails } from "../types/TaskCompleteDetails";
 
 const BASE_EXPERIENCE = 420;
 export const LEVEL_ONE_EXPERIENCE = 1260;
+export const MULTIPLIER = 1.25;
 const DAILY_BONUS = 69;
 
 export const calculateNextLevelCap = (experienceLevel: number) => {
-    return Math.floor(LEVEL_ONE_EXPERIENCE * 1.5 ** (experienceLevel - 1));
+    return Math.floor(
+        LEVEL_ONE_EXPERIENCE * MULTIPLIER ** (experienceLevel - 1)
+    );
 };
 
 export const calculateVarietyBonus = async (newTask: Task): Promise<number> => {
