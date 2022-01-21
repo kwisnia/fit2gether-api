@@ -9,11 +9,11 @@ export const updateUserExperience = async (
     }
 ): Promise<void> => {
     await prisma.$executeRaw`update "Profile" set experience = experience + ${experience}
-                where id = ${user.id}`;
+                where "userId" = ${user.id}`;
 
     if (user?.partner1Id) {
         await prisma.$executeRaw`update "Profile" set experience = experience + ${experience}
-                where id = ${user.partner1Id}`;
+                where "userId" = ${user.partner1Id}`;
     }
     await checkLevel(
         (user.profile?.experience || 0) + experience,
@@ -49,15 +49,10 @@ export const checkLevel = async (
                 ((1 - MULTIPLIER ** (level - 1)) / (1 - MULTIPLIER))
     );
 
-    console.log(totalExperience);
-    console.log(currentExp);
-    console.log(level);
-    console.log(remainder);
-
     if (experienceLevel !== level) {
-        await prisma.$executeRaw`update "Profile" set "experienceLevel" = ${level}, experience = ${remainder} where id = ${userId}`;
+        await prisma.$executeRaw`update "Profile" set "experienceLevel" = ${level}, experience = ${remainder} where "userId" = ${userId}`;
         if (partnerId) {
-            await prisma.$executeRaw`update "Profile" set "experienceLevel" = ${level}, experience = ${remainder} where id = ${partnerId}`;
+            await prisma.$executeRaw`update "Profile" set "experienceLevel" = ${level}, experience = ${remainder} where "userId" = ${partnerId}`;
         }
     }
 
