@@ -127,6 +127,7 @@ export const getPairInfo = async (req: Request, res: Response) => {
     const response = {
         name: user.name,
         buddyName: user.partner1?.name,
+        buddyId: user.partner1?.id,
         experienceLevel: user.profile?.experienceLevel,
         experience: user.profile?.experience,
         experienceRequired: calculateNextLevelCap(
