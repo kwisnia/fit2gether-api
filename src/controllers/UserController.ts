@@ -48,6 +48,19 @@ export const registerUser = async (
             profile: true,
         },
     });
+    const tokenPair = getTokenPair({
+        email: newUser.email,
+        id: newUser.id,
+        partner1Id: newUser.partner1Id,
+    });
+    await prisma.session.create({
+        data: {
+            refreshToken: tokenPair.refreshToken,
+            user: {
+                connect: { id: newUser.id },
+            },
+        },
+    });
     res.status(201).send({
         id: newUser.id,
         username: newUser.name,
@@ -55,11 +68,7 @@ export const registerUser = async (
         profilePicture: newUser.profile?.avatarId,
         buddyProfilePicture: null,
         buddyId: newUser.partner1Id,
-        token: getTokenPair({
-            email: newUser.email,
-            id: newUser.id,
-            partner1Id: newUser.partner1Id,
-        }),
+        token: tokenPair,
         inviteCode: newUser.profile?.inviteCode,
     });
 };
