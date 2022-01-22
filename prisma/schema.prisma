@@ -25,7 +25,7 @@ model User {
 
 model Profile {
   id              Int     @id @default(autoincrement())
-  avatarUrl       String?
+  avatarId       Int @default(1)
   user            User    @relation(fields: [userId], references: [id])
   userId          Int     @unique
   inviteCode      String  @unique

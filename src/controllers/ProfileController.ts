@@ -9,12 +9,24 @@ export const editUserProfile = async (
     req: Request<any, any, UserUpdateForm>,
     res: Response
 ) => {
+    const { name, email, avatarId } = req.body;
     const user = req.user as UserInfo;
     await prisma.user.update({
         where: {
             id: user.id,
         },
-        data: req.body,
+        data: {
+            name,
+            email,
+        },
+    });
+    await prisma.profile.update({
+        where: {
+            userId: user.id,
+        },
+        data: {
+            avatarId,
+        },
     });
     res.sendStatus(200);
 };
@@ -58,7 +70,7 @@ export const connectToBuddy = async (req: Request, res: Response) => {
     res.status(200).send({
         accessToken: tokenPair.accessToken,
         buddyId: profile.userId,
-        buddyProfilePicture: profile.avatarUrl,
+        buddyProfilePicture: profile.avatarId,
     });
 };
 

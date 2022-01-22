@@ -52,7 +52,7 @@ export const registerUser = async (
         id: newUser.id,
         username: newUser.name,
         email: newUser.email,
-        profilePicture: newUser.profile?.avatarUrl,
+        profilePicture: newUser.profile?.avatarId,
         buddyProfilePicture: null,
         buddyId: newUser.partner1Id,
         token: getTokenPair({
@@ -109,13 +109,13 @@ export const login = async (
                 userId: existingUserCheck.partner1Id,
             },
         });
-        buddyProfilePicture = buddy?.avatarUrl;
+        buddyProfilePicture = buddy?.avatarId;
     }
     res.status(200).send({
         id: existingUserCheck.id,
         username: existingUserCheck.name,
         email: existingUserCheck.email,
-        profilePicture: existingUserCheck.profile?.avatarUrl,
+        profilePicture: existingUserCheck.profile?.avatarId,
         buddyProfilePicture,
         buddyId: existingUserCheck.partner1Id,
         token: tokenPair,
