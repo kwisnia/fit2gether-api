@@ -272,12 +272,12 @@ export const markTaskAsComplete = async (
         });
         return;
     }
-    // if (existCheck.completionTime) {
-    //     res.status(400).send({
-    //         message: "This task has already been completed",
-    //     });
-    //     return;
-    // }
+    if (existCheck.completionTime) {
+        res.status(400).send({
+            message: "This task has already been completed",
+        });
+        return;
+    }
     const updatedTask = await prisma.task.update({
         where: {
             id: Number(taskId),
