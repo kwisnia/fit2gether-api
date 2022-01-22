@@ -31,10 +31,21 @@ export const refresh = async (
         });
         return;
     }
+    const userData = await prisma.user.findFirst({
+        where: {
+            id: user.id,
+        },
+    });
+    if (!userData) {
+        res.status(404).send({
+            message: "User not found",
+        });
+        return;
+    }
     const newTokenPair = getTokenPair({
         id: user.id,
-        email: user.email,
-        partner1Id: user.partner1Id,
+        email: userData.email,
+        partner1Id: userData.partner1Id,
     });
     await prisma.session.update({
         where: {
