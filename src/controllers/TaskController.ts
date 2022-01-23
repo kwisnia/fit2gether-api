@@ -32,8 +32,8 @@ export const getAllUserTasks = async (
     };
     if (from && to) {
         try {
-            const fromDate = new Date(from);
-            const toDate = new Date(to);
+            const fromDate = new Date(`${from} GMT`);
+            const toDate = new Date(`${to} GMT`);
             query = {
                 ...query,
                 date: {
@@ -107,8 +107,8 @@ export const getDatesWithTasks = async (
     let query: Object = {};
     if (from && to) {
         try {
-            const fromDate = new Date(from);
-            const toDate = new Date(to);
+            const fromDate = new Date(`${from} GMT`);
+            const toDate = new Date(`${to} GMT`);
             query = {
                 date: {
                     gte: fromDate,
@@ -182,7 +182,7 @@ export const createNewTask = async (
         const createTask = await prisma.task.create({
             data: {
                 name,
-                date: new Date(date),
+                date: new Date(`${date} GMT`),
                 categoryId,
                 userId: user.id,
             },
