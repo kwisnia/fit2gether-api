@@ -8,6 +8,7 @@ import {
 import { logout, refresh } from "../controllers/SessionController";
 import {
     createNewTask,
+    deleteTask,
     getAllUserTasks,
     getDatesWithTasks,
     markTaskAsComplete,
@@ -35,4 +36,6 @@ router.get("/getDaysWithTasks", getDatesWithTasks);
 router.post("/task", createNewTask);
 router.put("/task/:id", modifyTask);
 router.put("/task/:id/complete", markTaskAsComplete);
+router.delete("/task/:id", deleteTask);
+
 export default router;
