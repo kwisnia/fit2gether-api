@@ -197,6 +197,27 @@ export const createNewTask = async (
 
 export const deleteTask = async (req: Request, res: Response) => {
     const taskId = req.params.id;
+    const user = req.user as UserInfo;
+
+    const taskCheck = await prisma.task.findFirst({
+        where: {
+            userId: user.id,
+            id: Number(taskId),
+        },
+    });
+
+    if (!Number(taskId)) {
+        res.status(400).send({
+            message: "Task ID must be a number",
+        });
+        return;
+    }
+    if (!taskCheck) {
+        res.status(404).send({
+            message: "Task was not found",
+        });
+        return;
+    }
     await prisma.task.deleteMany({
         where: {
             id: Number(taskId),
@@ -222,6 +243,12 @@ export const modifyTask = async (req: Request, res: Response) => {
     if (!new Date(date)) {
         res.status(400).send({
             message: "Invalid date provided",
+        });
+        return;
+    }
+    if (!Number(taskId)) {
+        res.status(400).send({
+            message: "Task ID must be a number",
         });
         return;
     }
